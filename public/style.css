@@ -1,0 +1,30 @@
+* {
+}
+.card {
+  margin: 70px auto;
+  max-width: 400px;
+  min-height: 160px;
+  padding: 30px;
+  width: 60%;
+  background-color: #f0edf0;
+  -webkit-box-shadow: 10px 10px 14px -5px rgba(189,183,189,0.72);
+  -moz-box-shadow: 10px 10px 14px -5px rgba(189,183,189,0.72);
+  box-shadow: 10px 10px 14px -5px rgba(189,183,189,0.72);
+}
+
+.card .card-width {
+  width: 100%;
+}
+.card h1 {
+  text-align: center;
+}
+
+.card input {
+  margin: 5px 0 !important;
+  height: 2.5em;
+}
+
+.card button{
+  margin: 5px 0 !important;
+  height: 2.5em;
+}
