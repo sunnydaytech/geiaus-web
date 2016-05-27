@@ -11,6 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.13.4",
-    "express-handlebars": "^3.0.0"
+    "express-handlebars": "^3.0.0",
+    "phantomjs-prebuilt": "^2.1.7",
+    "webdriverio": "^4.0.9"
+  },
+  "devDependencies": {
+    "wdio-mocha-framework": "^0.2.13"
   }
 }
