@@ -1,0 +1,3 @@
+[submodule "submodules/geiaus-server"]
+	path = submodules/geiaus-server
+	url = git@github.com:sunnydaytech/geiaus-server.git
