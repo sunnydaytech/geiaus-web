@@ -2,6 +2,13 @@
 
 var express = require('express');
 var app = express();
+
+var bodyParser = require('body-parser')
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+    extended: true
+})); 
+
 var grpc = require('grpc');
 const PROTO_PATH = __dirname + '/submodules/geiaus-server/proto/user.proto';
 var user = grpc.load(PROTO_PATH).proto;
@@ -21,22 +28,65 @@ app.get('/signin', function(req, res){
   res.render('signin');
 });
 
-app.get('/signup', function(req, res){
-  let createUserRequest = {
-    user_to_create: {
-      user_id: 1,
-      user_name: 'test',
-      email: 'test@gmail.com',
-      phone_number: '6506918096' }
+app.post('/signin', function(req, res){
+  let username = req.body.username;
+  console.log('Looking up user with username: ' + username);
+  let lookupUserRequest = {
+    user_name: username
   }
-  userClient.createUser(createUserRequest, function(err, data) {
-    if (err) {
-      console.log(err);
+  userClient.lookupUser(lookupUserRequest, function(err, lookupUserResp) {
+    if (!lookupUserResp.user) {
+      // account not found.
+      res.render('signin');
       return;
+    } else {
+      res.redirect('/c/password?userId=' + lookupUserResp.user.user_id);
     }
-    console.log(data);
-  })
+  });
+});
+
+app.get('/c/password', function(req, res) {
+  res.render('password', {userId: req.query.userId});
+});
+
+app.post('/c/password', function(req, res) {
+  let checkPasswordReq = {
+    user_id: req.body.userId,
+    password: req.body.password 
+  };
+  userClient.checkPassword(checkPasswordReq, function(err, checkPasswordResp) {
+    if (checkPasswordResp.match) {
+      res.redirect('/success');
+    } else {
+      res.render('password');
+    }
+  });
+});
+
+
+app.get('/signup', function(req, res){
   res.render('signup');
+});
+
+app.post('/signup', function(req, res) {
+  let username = req.body.username;
+  let password = req.body.password;
+  console.log(username + "::" + password);
+  let createUserRequest = {
+    user_name: username,
+  };
+  userClient.createUser(createUserRequest, function(err, createUserResp) {
+    console.log(createUserResp);
+    let user = createUserResp.created_user;
+    let setPasswordRequest = {
+      user_id: user.user_id,
+      password: password
+    };
+    userClient.setPassword(setPasswordRequest, function(err, setPasswordResp) {
+      console.log(setPasswordResp);
+      res.render('signup');
+    });
+  });
 });
 
 
