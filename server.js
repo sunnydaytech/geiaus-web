@@ -18,6 +18,7 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 var grpc = require('grpc');
 const PROTO_PATH = __dirname + '/submodules/geiaus-server/proto/user.proto';
+console.log('Loading proto def from ' + PROTO_PATH);
 var user = grpc.load(PROTO_PATH).proto;
 // geiaus-server: 10.51.251.165
 let geiausServer = 'localhost:50051';

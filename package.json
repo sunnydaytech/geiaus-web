@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "./build/update_submodules.sh && node server.js --backend 10.51.251.165:50051",
+    "start": "node server.js --backend 10.51.251.165:50051",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
