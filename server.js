@@ -2,6 +2,7 @@
 
 var express = require('express');
 var app = express();
+var Long = require("long");
 
 var bodyParser = require('body-parser')
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
@@ -40,6 +41,7 @@ app.post('/signin', function(req, res){
       res.render('signin');
       return;
     } else {
+      console.log(lookupUserResp);
       res.redirect('/c/password?userId=' + lookupUserResp.user.user_id);
     }
   });
@@ -51,12 +53,17 @@ app.get('/c/password', function(req, res) {
 
 app.post('/c/password', function(req, res) {
   let checkPasswordReq = {
-    user_id: req.body.userId,
+    user_id: Long.fromString(req.body.userId),
     password: req.body.password 
   };
+  console.log(checkPasswordReq);
   userClient.checkPassword(checkPasswordReq, function(err, checkPasswordResp) {
+    if (err) {
+      console.log(err);
+      return;
+    }
     if (checkPasswordResp.match) {
-      res.redirect('/success');
+      res.redirect('/signin/success');
     } else {
       res.render('password');
     }
@@ -84,7 +91,7 @@ app.post('/signup', function(req, res) {
     };
     userClient.setPassword(setPasswordRequest, function(err, setPasswordResp) {
       console.log(setPasswordResp);
-      res.render('signup');
+      res.redirect('/signup/success');
     });
   });
 });
