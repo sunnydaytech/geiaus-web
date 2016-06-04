@@ -3,6 +3,12 @@
 var express = require('express');
 var app = express();
 var Long = require("long");
+var program = require('commander');
+
+program
+  .version('0.0.1')
+  .option('--backend [backendAddress]', 'Specify geiaus-server address')
+  .parse(process.argv)
 
 var bodyParser = require('body-parser')
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
@@ -13,7 +19,12 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 var grpc = require('grpc');
 const PROTO_PATH = __dirname + '/submodules/geiaus-server/proto/user.proto';
 var user = grpc.load(PROTO_PATH).proto;
-var userClient = new user.UserManage('localhost:50051', grpc.credentials.createInsecure());
+// geiaus-server: 10.51.251.165
+let geiausServer = 'localhost:50051';
+if (program.backend) {
+  geiausServer = program.backend;
+}
+var userClient = new user.UserManage(geiausServer, grpc.credentials.createInsecure());
 
 // Configure template
 var exphbs = require('express-handlebars');
