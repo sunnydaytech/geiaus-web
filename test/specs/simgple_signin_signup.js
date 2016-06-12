@@ -16,6 +16,9 @@ describe('geiaus', function() {
         .url('/signin')
         .addValue('#username', 'nic')
         .submitForm('#signinForm')
+        .addValue('#password', 'wrongpassword')
+        .submitForm('#passwordForm')
+        // TODO: assert password mismatch error shown
         .addValue('#password', 'nic')
         .submitForm('#passwordForm')
         .waitUntil(function() {

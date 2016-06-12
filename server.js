@@ -14,7 +14,7 @@ var bodyParser = require('body-parser')
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
-})); 
+}));
 
 var grpc = require('grpc');
 const USER_PROTO_PATH = __dirname + '/submodules/geiaus-server/proto/user.proto';
@@ -27,7 +27,7 @@ if (program.backend) {
   geiausServer = program.backend;
 }
 var userClient = new user.UserManage(geiausServer, grpc.credentials.createInsecure());
-var sessionClient = new session.Session(geiausServer, grpc.credentials.createInsecure()) 
+var sessionClient = new session.Session(geiausServer, grpc.credentials.createInsecure())
 
 // Configure template
 var exphbs = require('express-handlebars');
@@ -67,7 +67,16 @@ app.post('/signin', function(req, res){
 });
 
 app.get('/c/password', function(req, res) {
-  res.render('password', {iSessionId: req.query.iSessionId});
+  let lookupISessionRequest = {
+    id: req.query.iSessionId
+  };
+  sessionClient.lookupISession(lookupISessionRequest, function(err, lookupISessionResp) {
+    if (!lookupISessionResp.i_session) {
+      res.redirect('/signin');
+      return;
+    }
+    res.render('password', {iSessionId: req.query.iSessionId});
+  });
 });
 
 app.post('/c/password', function(req, res) {
@@ -75,9 +84,15 @@ app.post('/c/password', function(req, res) {
     id: req.body.iSessionId
   };
   sessionClient.lookupISession(lookupISessionRequest, function(err, lookupISessionResp) {
+    // isession not found.
+    if (!lookupISessionResp.i_session) {
+      res.redirect('/signin');
+      return;
+    }
+
     let checkPasswordReq = {
       user_id: lookupISessionResp.i_session.user_id,
-      password: req.body.password 
+      password: req.body.password
     };
     console.log(checkPasswordReq);
     userClient.checkPassword(checkPasswordReq, function(err, checkPasswordResp) {
@@ -88,7 +103,7 @@ app.post('/c/password', function(req, res) {
       if (checkPasswordResp.match) {
         res.redirect('/signin/success');
       } else {
-        res.render('password');
+        res.render('password', {iSessionId: req.body.iSessionId});
       }
     });
   });
