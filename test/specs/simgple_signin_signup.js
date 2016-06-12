@@ -1,7 +1,7 @@
 var assert = require('assert');
 
-describe('webdriver.io page', function() {
-    it('should have the right title - the fancy generator way', function () {
+describe('geiaus', function() {
+    it('successfully signup and signin', function () {
       browser
         .url('/signup')
         .addValue('#username', 'nic')
@@ -23,5 +23,12 @@ describe('webdriver.io page', function() {
             return url.indexOf('/signin/success')>= 0;
           });
         });
+    });
+    it('should show error when account is not found', function() {
+      browser
+        .url('/signin')
+        .addValue('#username', 'nonexistaccount')
+        .submitForm('#signinForm')
+        .waitForText('.error', 'Account not found.');
     });
 });

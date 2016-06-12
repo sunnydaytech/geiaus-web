@@ -3,3 +3,4 @@ node_modules/
 .bin/
 .*.swp
 errorShots
+.DS_store

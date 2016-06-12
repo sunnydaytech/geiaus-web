@@ -28,3 +28,7 @@
   margin: 5px 0 !important;
   height: 2.5em;
 }
+.error{
+  margin: 5px 0;
+  color: #D8000C;
+}

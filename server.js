@@ -52,7 +52,7 @@ app.post('/signin', function(req, res){
   userClient.lookupUser(lookupUserRequest, function(err, lookupUserResp) {
     if (!lookupUserResp.user) {
       // account not found.
-      res.render('signin');
+      res.render('signin', {error: 'Account not found.'});
       return;
     } else {
       console.log(lookupUserResp);
