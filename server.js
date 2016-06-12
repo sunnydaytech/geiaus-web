@@ -17,15 +17,17 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 })); 
 
 var grpc = require('grpc');
-const PROTO_PATH = __dirname + '/submodules/geiaus-server/proto/user.proto';
-console.log('Loading proto def from ' + PROTO_PATH);
-var user = grpc.load(PROTO_PATH).proto;
+const USER_PROTO_PATH = __dirname + '/submodules/geiaus-server/proto/user.proto';
+const SESSION_PROTO_PATH = __dirname + '/submodules/geiaus-server/proto/session.proto';
+var user = grpc.load(USER_PROTO_PATH).proto;
+var session = grpc.load(SESSION_PROTO_PATH).proto
 // geiaus-server: 10.51.251.165
 let geiausServer = 'localhost:50051';
 if (program.backend) {
   geiausServer = program.backend;
 }
 var userClient = new user.UserManage(geiausServer, grpc.credentials.createInsecure());
+var sessionClient = new session.Session(geiausServer, grpc.credentials.createInsecure()) 
 
 // Configure template
 var exphbs = require('express-handlebars');
@@ -54,33 +56,43 @@ app.post('/signin', function(req, res){
       return;
     } else {
       console.log(lookupUserResp);
-      res.redirect('/c/password?userId=' + lookupUserResp.user.user_id);
+      let createISessionRequest = {
+        user_id: lookupUserResp.user.user_id
+      };
+      sessionClient.createISession(createISessionRequest, function(err, createISessionResp) {
+        res.redirect('/c/password?iSessionId=' + createISessionResp.i_session.id);
+      });
     }
   });
 });
 
 app.get('/c/password', function(req, res) {
-  res.render('password', {userId: req.query.userId});
+  res.render('password', {iSessionId: req.query.iSessionId});
 });
 
 app.post('/c/password', function(req, res) {
-  let checkPasswordReq = {
-    user_id: Long.fromString(req.body.userId),
-    password: req.body.password 
+  let lookupISessionRequest = {
+    id: req.body.iSessionId
   };
-  console.log(checkPasswordReq);
-  userClient.checkPassword(checkPasswordReq, function(err, checkPasswordResp) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    if (checkPasswordResp.match) {
-      res.redirect('/signin/success');
-    } else {
-      res.render('password');
-    }
+  sessionClient.lookupISession(lookupISessionRequest, function(err, lookupISessionResp) {
+    let checkPasswordReq = {
+      user_id: lookupISessionResp.i_session.user_id,
+      password: req.body.password 
+    };
+    console.log(checkPasswordReq);
+    userClient.checkPassword(checkPasswordReq, function(err, checkPasswordResp) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      if (checkPasswordResp.match) {
+        res.redirect('/signin/success');
+      } else {
+        res.render('password');
+      }
+    });
   });
-});
+ });
 
 
 app.get('/signup', function(req, res){
