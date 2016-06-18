@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: geiaus-web 
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: geiaus-web 
+    spec:
+      containers:
+        -
+          name: geiaus-web 
+          image: gcr.io/nich01as-com/geiaus-web:20160618-4
+          ports:
+            -
+              containerPort: 8080
+          imagePullPolicy: Always
