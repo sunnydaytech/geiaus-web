@@ -12,7 +12,7 @@ spec:
       containers:
         -
           name: geiaus-web 
-          image: gcr.io/nich01as-com/geiaus-web:20160618-4
+          image: gcr.io/nich01as-com/geiaus-web:20160626
           ports:
             -
               containerPort: 8080
